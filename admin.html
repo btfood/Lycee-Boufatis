@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة الإدارة | Administration</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    body { font-family: 'Cairo', 'Inter', sans-serif; background: #f1f5f9; }
+    .sidebar-link { transition: all 0.2s; }
+    .sidebar-link:hover, .sidebar-link.active { background: #334155; color: #f59e0b; }
+    .form-input { @apply w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent; }
+  </style>
+</head>
+<body class="min-h-screen">
+  
+  <!-- Password Protection Overlay -->
+  <div id="authOverlay" class="fixed inset-0 bg-slate-900/95 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span class="text-2xl text-amber-500">🔐</span>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-900">لوحة الإدارة</h2>
+        <p class="text-slate-500 mt-2">الرجاء إدخال كلمة المرور للمتابعة</p>
+      </div>
+      <input type="password" id="adminPassword" class="form-input mb-4 text-center" placeholder="كلمة المرور">
+      <button id="loginBtn" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3 rounded-lg transition">
+        دخول
+      </button>
+      <p id="loginError" class="text-red-500 text-sm mt-3 text-center hidden">كلمة المرور غير صحيحة</p>
+      <p class="text-xs text-slate-400 text-center mt-4">الافتراضية: admin123</p>
+    </div>
+  </div>
+
+  <!-- Main Dashboard (hidden initially) -->
+  <div id="dashboard" class="hidden min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 text-white flex flex-col">
+      <div class="p-6 border-b border-slate-700">
+        <h1 class="text-lg font-bold text-amber-500">لوحة التحكم</h1>
+        <p class="text-xs text-slate-400">ثانوية بسجراري لخضر</p>
+      </div>
+      
+      <nav class="flex-1 p-4 space-y-2">
+        <button class="sidebar-link active w-full text-right px-4 py-3 rounded-lg flex items-center gap-3" data-section="news">
+          <span>📰</span> إدارة الأخبار
+        </button>
+        <button class="sidebar-link w-full text-right px-4 py-3 rounded-lg flex items-center gap-3" data-section="announcements">
+          <span>📢</span> الإعلانات
+        </button>
+        <button class="sidebar-link w-full text-right px-4 py-3 rounded-lg flex items-center gap-3" data-section="documents">
+          <span>📄</span> الوثائق
+        </button>
+        <button class="sidebar-link w-full text-right px-4 py-3 rounded-lg flex items-center gap-3" data-section="messages">
+          <span>✉️</span> رسائل الاتصال
+        </button>
+      </nav>
+      
+      <div class="p-4 border-t border-slate-700">
+        <button id="logoutBtn" class="w-full text-slate-400 hover:text-white text-sm transition">
+          تسجيل الخروج
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto p-8">
+      <!-- News Section -->
+      <section id="section-news" class="section-content">
+        <h2 class="text-2xl font-bold text-slate-900 mb-6">إدارة الأخبار</h2>
+        
+        <!-- Add News Form -->
+        <form id="newsForm" class="bg-white rounded-xl shadow-sm p-6 mb-8">
+          <h3 class="font-bold text-lg mb-4">إضافة خبر جديد</h3>
+          <div class="grid md:grid-cols-2 gap-4">
+            <input type="text" name="title_ar" placeholder="العنوان بالعربية" class="form-input" required>
+            <input type="text" name="title_fr" placeholder="Titre en français" class="form-input" required>
+            <textarea name="content_ar" placeholder="المحتوى بالعربية" class="form-input md:col-span-2" rows="3" required></textarea>
+            <textarea name="content_fr" placeholder="Contenu en français" class="form-input md:col-span-2" rows="3" required></textarea>
+            <input type="url" name="image_url" placeholder="رابط الصورة (اختياري)" class="form-input">
+            <label class="flex items-center gap-2">
+              <input type="checkbox" name="is_featured" class="rounded"> خبر مميز
+            </label>
+          </div>
+          <button type="submit" class="mt-4 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-6 py-2.5 rounded-lg transition">
+            نشر الخبر
+          </button>
+        </form>
+
+        <!-- News List -->
+        <div class="bg-white rounded-xl shadow-sm p-6">
+          <h3 class="font-bold text-lg mb-4">الأخبار المنشورة</h3>
+          <div id="newsList" class="space-y-3">
+            <p class="text-slate-400">جاري التحميل...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Announcements Section -->
+      <section id="section-announcements" class="section-content hidden">
+        <h2 class="text-2xl font-bold text-slate-900 mb-6">إدارة الإعلانات</h2>
+        
+        <form id="announcementForm" class="bg-white rounded-xl shadow-sm p-6 mb-8">
+          <h3 class="font-bold text-lg mb-4">إضافة إعلان جديد</h3>
+          <div class="grid md:grid-cols-2 gap-4">
+            <input type="text" name="title_ar" placeholder="العنوان بالعربية" class="form-input" required>
+            <input type="text" name="title_fr" placeholder="Titre en français" class="form-input" required>
+            <textarea name="content_ar" placeholder="المحتوى بالعربية" class="form-input md:col-span-2" rows="3" required></textarea>
+            <textarea name="content_fr" placeholder="Contenu en français" class="form-input md:col-span-2" rows="3" required></textarea>
+            <select name="target_audience" class="form-input">
+              <option value="all">الجميع</option>
+              <option value="students">الطلاب</option>
+              <option value="teachers">الأساتذة</option>
+              <option value="parents">أولياء الأمور</option>
+            </select>
+          </div>
+          <button type="submit" class="mt-4 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-6 py-2.5 rounded-lg transition">
+            نشر الإعلان
+          </button>
+        </form>
+      </section>
+
+      <!-- Documents Section -->
+      <section id="section-documents" class="section-content hidden">
+        <h2 class="text-2xl font-bold text-slate-900 mb-6">إدارة الوثائق</h2>
+        
+        <form id="documentForm" class="bg-white rounded-xl shadow-sm p-6 mb-8">
+          <h3 class="font-bold text-lg mb-4">رفع وثيقة جديدة</h3>
+          <div class="grid md:grid-cols-2 gap-4">
+            <input type="text" name="title_ar" placeholder="اسم الوثيقة بالعربية" class="form-input" required>
+            <input type="text" name="title_fr" placeholder="Nom du document en français" class="form-input" required>
+            <input type="url" name="file_url" placeholder="رابط الملف" class="form-input" required>
+            <select name="category" class="form-input">
+              <option value="schedules">جداول التوقيت</option>
+              <option value="lists">قوائم</option>
+              <option value="regulations">لوائح تنظيمية</option>
+              <option value="other">أخرى</option>
+            </select>
+          </div>
+          <button type="submit" class="mt-4 bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-6 py-2.5 rounded-lg transition">
+            إضافة الوثيقة
+          </button>
+        </form>
+      </section>
+
+      <!-- Messages Section -->
+      <section id="section-messages" class="section-content hidden">
+        <h2 class="text-2xl font-bold text-slate-900 mb-6">رسائل الاتصال</h2>
+        <div id="messagesList" class="bg-white rounded-xl shadow-sm p-6 space-y-4">
+          <p class="text-slate-400">جاري تحميل الرسائل...</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (function() {
+      // Supabase Configuration
+      const SUPABASE_URL = 'https://your-project.supabase.co';
+      const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvdXJwcm9qZWN0aWQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYxNjg4MjAwMCwiZXhwIjoxOTMyNDU4MDAwfQ.placeholder';
+      
+      let supabase = null;
+      try {
+        if (window.supabase && window.supabase.createClient) {
+          supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+      } catch(e) {
+        console.warn('Supabase not available, using mock mode');
+      }
+
+      const ADMIN_PASSWORD = 'admin123';
+      let isAuthenticated = false;
+
+      // Authentication
+      document.getElementById('loginBtn').addEventListener('click', () => {
+        const password = document.getElementById('adminPassword').value;
+        if (password === ADMIN_PASSWORD) {
+          isAuthenticated = true;
+          document.getElementById('authOverlay').classList.add('hidden');
+          document.getElementById('dashboard').classList.remove('hidden');
+          loadNewsList();
+          loadMessages();
+        } else {
+          document.getElementById('loginError').classList.remove('hidden');
+        }
+      });
+
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        isAuthenticated = false;
+        document.getElementById('authOverlay').classList.remove('hidden');
+        document.getElementById('dashboard').classList.add('hidden');
+        document.getElementById('adminPassword').value = '';
+      });
+
+      // Sidebar Navigation
+      document.querySelectorAll('.sidebar-link').forEach(link => {
+        link.addEventListener('click', () => {
+          document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+          
+          const section = link.dataset.section;
+          document.querySelectorAll('.section-content').forEach(s => s.classList.add('hidden'));
+          document.getElementById(`section-${section}`).classList.remove('hidden');
+          
+          if (section === 'messages') loadMessages();
+          if (section === 'news') loadNewsList();
+        });
+      });
+
+      // CRUD Operations
+      async function handleFormSubmit(formId, tableName, successMessage) {
+        const form = document.getElementById(formId);
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const formData = new FormData(form);
+          const data = Object.fromEntries(formData.entries());
+          
+          if (supabase) {
+            const { error } = await supabase.from(tableName).insert([data]);
+            if (error) {
+              alert('خطأ في الحفظ: ' + error.message);
+              return;
+            }
+          }
+          
+          alert(successMessage);
+          form.reset();
+          if (tableName === 'news') loadNewsList();
+          if (tableName === 'contact_messages') loadMessages();
+        });
+      }
+
+      handleFormSubmit('newsForm', 'news', 'تم نشر الخبر بنجاح');
+      handleFormSubmit('announcementForm', 'announcements', 'تم نشر الإعلان بنجاح');
+      handleFormSubmit('documentForm', 'documents', 'تمت إضافة الوثيقة بنجاح');
+
+      // Load News List
+      async function loadNewsList() {
+        const listEl = document.getElementById('newsList');
+        let newsData = [];
+        
+        if (supabase) {
+          const { data, error } = await supabase.from('news').select('*').order('created_at', { ascending: false });
+          if (data) newsData = data;
+        } else {
+          newsData = [
+            { id: 1, title_ar: 'نتائج البكالوريا', title_fr: 'Résultats Bac', created_at: '2025-07-05' },
+            { id: 2, title_ar: 'بداية الفصل الثاني', title_fr: 'Début trimestre', created_at: '2025-01-15' }
+          ];
+        }
+
+        listEl.innerHTML = newsData.map(item => `
+          <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+            <div>
+              <span class="font-semibold">${item.title_ar}</span>
+              <span class="text-sm text-slate-500 mr-2">${item.created_at || ''}</span>
+            </div>
+            <button onclick="deleteRecord('news', ${item.id})" class="text-red-500 hover:text-red-700">🗑️</button>
+          </div>
+        `).join('');
+      }
+
+      // Load Messages
+      async function loadMessages() {
+        const listEl = document.getElementById('messagesList');
+        let messages = [];
+        
+        if (supabase) {
+          const { data } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false });
+          if (data) messages = data;
+        } else {
+          messages = [
+            { id: 1, name: 'أحمد محمد', email: 'ahmed@email.com', message: 'استفسار عن موعد التسجيل', created_at: '2025-06-20' },
+            { id: 2, name: 'فاطمة علي', email: 'fatima@email.com', message: 'طلب وثيقة مدرسية', created_at: '2025-06-18' }
+          ];
+        }
+
+        listEl.innerHTML = messages.map(msg => `
+          <div class="border border-slate-200 rounded-lg p-4">
+            <div class="flex justify-between mb-2">
+              <strong>${msg.name}</strong>
+              <span class="text-sm text-slate-500">${msg.email}</span>
+            </div>
+            <p class="text-slate-700">${msg.message}</p>
+            <span class="text-xs text-slate-400">${msg.created_at || ''}</span>
+          </div>
+        `).join('');
+      }
+
+      // Global delete function
+      window.deleteRecord = async function(table, id) {
+        if (!confirm('هل أنت متأكد من الحذف؟')) return;
+        
+        if (supabase) {
+          const { error } = await supabase.from(table).delete().eq('id', id);
+          if (error) alert('خطأ في الحذف');
+        }
+        
+        if (table === 'news') loadNewsList();
+        if (table === 'contact_messages') loadMessages();
+      };
+    })();
+  </script>
+</body>
+</html>
