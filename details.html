@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تفاصيل الخبر | Détails de l'actualité</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    body { font-family: 'Cairo', 'Inter', sans-serif; }
+    .font-ar { font-family: 'Cairo', sans-serif; }
+    .font-fr { font-family: 'Inter', sans-serif; }
+    html[dir="rtl"] .ltr-only { display: none; }
+    html[dir="ltr"] .rtl-only { display: none; }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+  
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <a href="index.html" class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-amber-500 font-bold">ث</div>
+        <span class="font-bold text-slate-900 rtl-only font-ar">ثانوية بسجراري لخضر</span>
+        <span class="font-bold text-slate-900 ltr-only font-fr">Lycée Bousjerari Lakhdar</span>
+      </a>
+      
+      <div class="flex items-center gap-4">
+        <button id="langToggle" class="bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-full text-sm font-medium transition">
+          <span id="langIndicator">FR</span>
+        </button>
+        <a href="index.html" class="text-amber-600 hover:text-amber-700 font-semibold text-sm flex items-center gap-1">
+          <span class="rtl-only font-ar">← العودة للرئيسية</span>
+          <span class="ltr-only font-fr">← Retour à l'accueil</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Loading State -->
+    <div id="loadingState" class="text-center py-20">
+      <div class="animate-pulse">
+        <div class="h-8 bg-slate-200 rounded w-3/4 mx-auto mb-4"></div>
+        <div class="h-4 bg-slate-200 rounded w-1/2 mx-auto mb-8"></div>
+        <div class="h-64 bg-slate-200 rounded-xl mb-8"></div>
+        <div class="space-y-3">
+          <div class="h-4 bg-slate-200 rounded"></div>
+          <div class="h-4 bg-slate-200 rounded"></div>
+          <div class="h-4 bg-slate-200 rounded w-5/6"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Container -->
+    <article id="articleContent" class="hidden bg-white rounded-2xl shadow-lg overflow-hidden">
+      <!-- Featured Image -->
+      <div id="articleImage" class="w-full h-64 md:h-96 bg-slate-200 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+        </svg>
+      </div>
+      
+      <!-- Article Body -->
+      <div class="p-8 md:p-12">
+        <!-- Badge & Date -->
+        <div class="flex items-center gap-3 mb-4">
+          <span id="articleBadge" class="px-3 py-1 bg-amber-100 text-amber-700 text-sm font-semibold rounded-full">
+            <span class="rtl-only font-ar">خبر</span>
+            <span class="ltr-only font-fr">Actualité</span>
+          </span>
+          <span id="articleDate" class="text-slate-500 text-sm"></span>
+        </div>
+        
+        <!-- Title -->
+        <h1 id="articleTitle" class="text-3xl md:text-4xl font-bold text-slate-900 mb-6 leading-tight"></h1>
+        
+        <!-- Content -->
+        <div id="articleBody" class="prose prose-slate max-w-none text-slate-700 leading-relaxed text-lg space-y-4"></div>
+        
+        <!-- Back Button -->
+        <div class="mt-10 pt-8 border-t border-slate-200">
+          <a href="index.html" class="inline-flex items-center gap-2 text-amber-600 hover:text-amber-700 font-semibold transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span class="rtl-only font-ar">العودة إلى الصفحة الرئيسية</span>
+            <span class="ltr-only font-fr">Retour à la page d'accueil</span>
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Error State -->
+    <div id="errorState" class="hidden text-center py-20">
+      <div class="text-6xl mb-4">📄</div>
+      <h2 class="text-2xl font-bold text-slate-900 mb-2">
+        <span class="rtl-only font-ar">المحتوى غير موجود</span>
+        <span class="ltr-only font-fr">Contenu introuvable</span>
+      </h2>
+      <p class="text-slate-500 mb-6">
+        <span class="rtl-only font-ar">عذراً، لم نتمكن من العثور على هذا الخبر أو الإعلان.</span>
+        <span class="ltr-only font-fr">Désolé, nous n'avons pas pu trouver cette actualité ou annonce.</span>
+      </p>
+      <a href="index.html" class="inline-block bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-6 py-3 rounded-lg transition">
+        <span class="rtl-only font-ar">العودة للرئيسية</span>
+        <span class="ltr-only font-fr">Retour à l'accueil</span>
+      </a>
+    </div>
+  </main>
+
+  <script>
+    (function() {
+      // Supabase Configuration
+      const SUPABASE_URL = 'https://your-project.supabase.co';
+      const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvdXJwcm9qZWN0aWQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTYxNjg4MjAwMCwiZXhwIjoxOTMyNDU4MDAwfQ.placeholder';
+      
+      let supabase = null;
+      try {
+        if (window.supabase && window.supabase.createClient) {
+          supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+      } catch(e) {
+        console.warn('Supabase client not available, using mock data');
+      }
+
+      let currentLang = 'ar';
+
+      // Language Management
+      function switchLanguage(lang) {
+        currentLang = lang;
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        document.getElementById('langIndicator').textContent = lang === 'ar' ? 'FR' : 'AR';
+        
+        // Re-render article with new language
+        const articleData = window.currentArticleData;
+        if (articleData) {
+          renderArticle(articleData);
+        }
+      }
+
+      document.getElementById('langToggle').addEventListener('click', () => {
+        switchLanguage(currentLang === 'ar' ? 'fr' : 'ar');
+      });
+
+      // Parse URL Parameters
+      function getUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+          id: params.get('id'),
+          type: params.get('type') || 'news'
+        };
+      }
+
+      // Fetch Article Data
+      async function fetchArticle(id, type) {
+        if (!id) return null;
+
+        // Try Supabase first
+        if (supabase) {
+          try {
+            const table = type === 'announcement' ? 'announcements' : 'news';
+            const { data, error } = await supabase
+              .from(table)
+              .select('*')
+              .eq('id', id)
+              .single();
+            
+            if (data && !error) return data;
+          } catch(e) {
+            console.warn('Supabase fetch failed, using fallback');
+          }
+        }
+
+        // Fallback mock data
+        const mockNews = {
+          1: {
+            id: 1,
+            title_ar: 'نتائج البكالوريا 2025',
+            title_fr: 'Résultats du Baccalauréat 2025',
+            content_ar: 'بكل فخر واعتزاز، تعلن ثانوية بسجراري لخضر عن نتائج البكالوريا لهذا العام. حقق طلابنا نسبة نجاح بلغت 94%، وهي من أعلى النسب على مستوى الولاية. نتقدم بأحر التهاني لجميع الطلاب الناجحين وأولياء أمورهم، ونشكر كل الأساتذة الذين ساهموا في هذا الإنجاز الكبير.\n\nلقد تميز هذا العام بأداء استثنائي في الشعب العلمية، حيث حصل العديد من الطلاب على معدلات ممتازة تؤهلهم للتخصصات الجامعية المرموقة.',
+            content_fr: "C'est avec une grande fierté que le Lycée Bousjerari Lakhdar annonce les résultats du Baccalauréat de cette année. Nos élèves ont atteint un taux de réussite de 94%, l'un des plus élevés de la wilaya. Nous adressons nos plus vives félicitations à tous les élèves admis et à leurs parents, et remercions tous les enseignants qui ont contribué à cette grande réussite.\n\nCette année s'est distinguée par une performance exceptionnelle dans les filières scientifiques, où de nombreux élèves ont obtenu d'excellentes moyennes leur permettant d'accéder à des spécialités universitaires prestigieuses.",
+            image_url: '',
+            created_at: '2025-07-05',
+            is_featured: true
+          },
+          2: {
+            id: 2,
+            title_ar: 'انطلاق الفصل الدراسي الثاني',
+            title_fr: 'Début du deuxième trimestre',
+            content_ar: 'نرحب بجميع طلابنا مع بداية الفصل الدراسي الثاني. تم تجهيز جميع الأقسام وتحديث المعدات التعليمية لضمان بيئة تعليمية مثالية. نذكر الطلاب بضرورة الالتزام بالزي المدرسي والحضور في الوقت المحدد.\n\nكما نعلن عن فتح باب التسجيل في النوادي العلمية والثقافية، وندعو جميع الطلاب للمشاركة في الأنشطة اللاصفية التي تساهم في تنمية مهاراتهم.',
+            content_fr: 'Nous souhaitons la bienvenue à tous nos élèves pour le début du deuxième trimestre. Toutes les classes ont été préparées et les équipements pédagogiques mis à jour pour garantir un environnement d\'apprentissage optimal. Nous rappelons aux élèves la nécessité de respecter l\'uniforme scolaire et d\'arriver à l\'heure.\n\nNous annonçons également l\'ouverture des inscriptions aux clubs scientifiques et culturels, et invitons tous les élèves à participer aux activités extrascolaires qui contribuent au développement de leurs compétences.',
+            image_url: '',
+            created_at: '2025-01-15',
+            is_featured: false
+          }
+        };
+
+        return mockNews[id] || null;
+      }
+
+      // Render Article
+      function renderArticle(data) {
+        window.currentArticleData = data;
+        
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('errorState').classList.add('hidden');
+        document.getElementById('articleContent').classList.remove('hidden');
+        
+        // Set title
+        document.getElementById('articleTitle').textContent = 
+          currentLang === 'ar' ? data.title_ar : data.title_fr;
+        
+        // Set content
+        const contentText = currentLang === 'ar' ? data.content_ar : data.content_fr;
+        document.getElementById('articleBody').innerHTML = 
+          contentText.split('\n').filter(p => p.trim()).map(p => `<p>${p}</p>`).join('');
+        
+        // Set date
+        document.getElementById('articleDate').textContent = 
+          data.created_at ? new Date(data.created_at).toLocaleDateString(
+            currentLang === 'ar' ? 'ar-DZ' : 'fr-FR',
+            { year: 'numeric', month: 'long', day: 'numeric' }
+          ) : '';
+        
+        // Set badge
+        const badgeText = data.type === 'announcement' ? 
+          (currentLang === 'ar' ? 'إعلان' : 'Annonce') : 
+          (currentLang === 'ar' ? 'خبر' : 'Actualité');
+        document.getElementById('articleBadge').querySelector('.rtl-only').textContent = 
+          currentLang === 'ar' ? badgeText : '';
+        document.getElementById('articleBadge').querySelector('.ltr-only').textContent = 
+          currentLang === 'fr' ? badgeText : '';
+        
+        // Set image if available
+        if (data.image_url) {
+          document.getElementById('articleImage').innerHTML = 
+            `<img src="${data.image_url}" alt="Article image" class="w-full h-full object-cover">`;
+        }
+      }
+
+      // Error Display
+      function showError() {
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('articleContent').classList.add('hidden');
+        document.getElementById('errorState').classList.remove('hidden');
+      }
+
+      // Initialize Page
+      async function init() {
+        const { id, type } = getUrlParams();
+        
+        if (!id) {
+          showError();
+          return;
+        }
+
+        const articleData = await fetchArticle(id, type);
+        
+        if (articleData) {
+          articleData.type = type;
+          renderArticle(articleData);
+        } else {
+          showError();
+        }
+      }
+
+      // Set default language to Arabic
+      document.documentElement.lang = 'ar';
+      document.documentElement.dir = 'rtl';
+      document.getElementById('langIndicator').textContent = 'FR';
+      
+      // Start
+      init();
+    })();
+  </script>
+</body>
+</html>
