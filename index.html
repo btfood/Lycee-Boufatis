@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ثانوية بسجراري لخضر - بوفاطيس | الموقع الرسمي">
+  <title>ثانوية بسجراري لخضر - بوفاطيس | Lycée Bousjerari Lakhdar</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Cairo for Arabic, Inter for French -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body { font-family: 'Cairo', 'Inter', sans-serif; }
+    .font-ar { font-family: 'Cairo', sans-serif; }
+    .font-fr { font-family: 'Inter', sans-serif; }
+
+    /* Direction-aware visibility */
+    html[dir="rtl"] .ltr-only { display: none !important; }
+    html[dir="ltr"] .rtl-only { display: none !important; }
+
+    /* Hero gradient */
+    .hero-gradient {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 50%, rgba(15, 23, 42, 0.9) 100%);
+    }
+
+    /* Hover effects */
+    .hover-lift {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-lift:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 25px 30px -12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Smooth scroll */
+    html { scroll-behavior: smooth; }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 4px; }
+
+    /* Gallery tab active */
+    .gallery-tab.active {
+      background-color: #0f172a !important;
+      color: #f59e0b !important;
+      border: 2px solid #f59e0b !important;
+    }
+
+    /* Pulse animation for live indicator */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .live-pulse {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+</head>
+<body class="bg-white text-slate-800 antialiased">
+
+  <!-- ==================== HEADER / NAVIGATION ==================== -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b-2 border-slate-100 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-3 lg:py-4">
+
+        <!-- Logo & School Name -->
+        <a href="#" class="flex items-center gap-3 lg:gap-4 group">
+          <div class="relative w-12 h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl flex items-center justify-center text-amber-500 text-2xl font-black shadow-lg group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
+            <span class="font-ar">ث</span>
+            <div class="absolute -top-1 -right-1 w-4 h-4 bg-amber-500 rounded-full live-pulse"></div>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-base lg:text-xl font-extrabold text-slate-900 leading-tight rtl-only font-ar">ثانوية بسجراري لخضر</span>
+            <span class="text-base lg:text-xl font-extrabold text-slate-900 leading-tight ltr-only font-fr">Lycée Bousjerari Lakhdar</span>
+            <span class="text-[10px] lg:text-xs text-slate-500 rtl-only font-ar tracking-wider">بوفاطيس - وهران - الجزائر</span>
+            <span class="text-[10px] lg:text-xs text-slate-500 ltr-only font-fr tracking-wider">Boufatis - Oran - Algérie</span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden lg:flex items-center gap-1">
+          <a href="#home" class="nav-link px-4 py-2.5 text-sm font-semibold text-amber-600 bg-amber-50 rounded-xl transition-all" data-key="nav_home">الرئيسية</a>
+          <a href="#news" class="nav-link px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all" data-key="nav_news">الأخبار</a>
+          <a href="#gallery" class="nav-link px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all" data-key="nav_gallery">المعرض</a>
+          <a href="#documents" class="nav-link px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all" data-key="nav_docs">الوثائق</a>
+          <a href="#contact" class="nav-link px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all" data-key="nav_contact">اتصل بنا</a>
+        </nav>
+
+        <!-- Language Toggle & Mobile Menu -->
+        <div class="flex items-center gap-2 lg:gap-3">
+          <!-- Language Switcher -->
+          <button id="langToggle"
+                  class="relative group bg-slate-100 hover:bg-slate-200 px-4 py-2.5 rounded-xl text-sm font-bold text-slate-700 transition-all duration-300 border border-slate-200 hover:border-slate-300"
+                  title="Changer la langue / تغيير اللغة">
+            <span id="langIndicator" class="flex items-center gap-1">
+              <span class="font-fr">FR</span>
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              </svg>
+            </span>
+          </button>
+
+          <!-- Mobile Menu Button -->
+          <button id="mobileMenuBtn" class="lg:hidden p-2.5 text-slate-700 hover:bg-slate-100 rounded-xl transition-colors">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Navigation (Hidden by default) -->
+      <div id="mobileNav" class="lg:hidden hidden pb-4 space-y-1">
+        <a href="#home" class="nav-link block px-4 py-3 text-sm font-semibold text-amber-600 bg-amber-50 rounded-xl" data-key="nav_home">الرئيسية</a>
+        <a href="#news" class="nav-link block px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 rounded-xl" data-key="nav_news">الأخبار</a>
+        <a href="#gallery" class="nav-link block px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 rounded-xl" data-key="nav_gallery">المعرض</a>
+        <a href="#documents" class="nav-link block px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 rounded-xl" data-key="nav_docs">الوثائق</a>
+        <a href="#contact" class="nav-link block px-4 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50 rounded-xl" data-key="nav_contact">اتصل بنا</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <main>
+
+    <!-- HERO SECTION -->
+    <section id="home" class="relative overflow-hidden bg-slate-900" style="min-height: 600px;">
+      <!-- Animated Background Pattern -->
+      <div class="absolute inset-0 opacity-10">
+        <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"1\"%3E%3Cpath d=\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); background-size: 60px 60px;"></div>
+      </div>
+
+      <!-- Gradient Overlay -->
+      <div class="absolute inset-0 hero-gradient"></div>
+
+      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+        <div class="flex flex-col items-center text-center lg:items-start lg:text-start max-w-3xl">
+          <!-- Badge -->
+          <div class="inline-flex items-center gap-2 bg-amber-500/10 backdrop-blur-sm border border-amber-500/20 px-5 py-2 rounded-full mb-8">
+            <span class="w-2 h-2 bg-amber-400 rounded-full live-pulse"></span>
+            <span class="text-amber-300 font-semibold text-sm tracking-wide rtl-only font-ar">مؤسسة تعليمية رسمية</span>
+            <span class="text-amber-300 font-semibold text-sm tracking-wide ltr-only font-fr">Établissement Public d'Enseignement</span>
+          </div>
+
+          <!-- Main Title -->
+          <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight">
+            <span class="rtl-only font-ar">ثانوية بسجراري لخضر</span>
+            <span class="ltr-only font-fr">Lycée Bousjerari Lakhdar</span>
+            <br>
+            <span class="text-amber-400 block mt-3 rtl-only font-ar">بوفاطيس</span>
+            <span class="text-amber-400 block mt-3 ltr-only font-fr">Boufatis</span>
+          </h1>
+
+          <!-- Description -->
+          <p class="text-lg sm:text-xl text-slate-300 max-w-2xl mb-10 leading-relaxed">
+            <span class="rtl-only font-ar">نحو تعليم نوعي وبيئة مدرسية متميزة لبناء أجيال الغد المشرقة</span>
+            <span class="ltr-only font-fr">Vers un enseignement d'excellence et un environnement éducatif exceptionnel pour les générations futures</span>
+          </p>
+
+          <!-- CTA Buttons -->
+          <div class="flex flex-wrap gap-4 justify-center lg:justify-start">
+            <a href="#news" class="group bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-8 py-4 rounded-xl shadow-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-amber-500/25">
+              <span class="rtl-only font-ar flex items-center gap-2">📰 آخر الأخبار</span>
+              <span class="ltr-only font-fr flex items-center gap-2">📰 Actualités</span>
+            </a>
+            <a href="#contact" class="group border-2 border-white/20 hover:border-white/40 text-white font-semibold px-8 py-4 rounded-xl backdrop-blur-sm transition-all duration-300 hover:bg-white/10">
+              <span class="rtl-only font-ar flex items-center gap-2">📞 اتصل بنا</span>
+              <span class="ltr-only font-fr flex items-center gap-2">📞 Nous Contacter</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Wave -->
+      <div class="absolute bottom-0 left-0 right-0">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 100" fill="#ffffff"><path fill-opacity="1" d="M0,64L80,69.3C160,75,320,85,480,80C640,75,800,53,960,48C1120,43,1280,53,1360,58.7L1440,64L1440,100L1360,100C1280,100,1120,100,960,100C800,100,640,100,480,100C320,100,160,100,80,100L0,100Z"></path></svg>
+      </div>
+    </section>
+
+    <!-- WELCOME MESSAGE SECTION -->
+    <section class="py-20 lg:py-28 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+          <!-- Left: Abstract Educational Icon -->
+          <div class="lg:w-1/2 w-full">
+            <div class="relative">
+              <div class="w-full h-80 lg:h-96 bg-gradient-to-br from-slate-100 to-slate-50 rounded-3xl flex items-center justify-center border-2 border-slate-100 shadow-inner overflow-hidden">
+                <div class="relative">
+                  <svg class="w-32 h-32 text-amber-500/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.5" d="M12 14l9-5-9-5-9 5 9 5z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.5" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.5" d="M12 14l9-5-9-5-9 5 9 5z" />
+                  </svg>
+                  <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-amber-500/10 rounded-full blur-xl"></div>
+                </div>
+              </div>
+              <!-- Decorative elements -->
+              <div class="absolute -top-4 -left-4 w-20 h-20 border-2 border-amber-200/50 rounded-2xl"></div>
+              <div class="absolute -bottom-4 -right-4 w-16 h-16 bg-amber-500/5 rounded-full"></div>
+            </div>
+          </div>
+
+          <!-- Right: Principal Message -->
+          <div class="lg:w-1/2">
+            <span class="inline-block text-amber-600 font-semibold text-sm tracking-wider uppercase mb-3 rtl-only font-ar">كلمة ترحيبية</span>
+            <span class="inline-block text-amber-600 font-semibold text-sm tracking-wider uppercase mb-3 ltr-only font-fr">Mot de bienvenue</span>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-6 leading-tight">
+              <span class="rtl-only font-ar">كلمة مدير المؤسسة</span>
+              <span class="ltr-only font-fr">Mot du Proviseur</span>
+            </h2>
+            <div class="w-24 h-1.5 bg-gradient-to-r from-amber-500 to-amber-300 rounded-full mb-8"></div>
+            <div class="space-y-4 text-slate-600 leading-relaxed text-lg">
+              <p>
+                <span class="rtl-only font-ar">أرحب بكم أجمل ترحيب في الموقع الرسمي لثانويتنا العريقة. نفخر بتقديم تعليم راقٍ يجمع بين الأصالة والمعاصرة، في بيئة تربوية محفزة تهدف إلى بناء شخصية الطالب المتكاملة علمياً وأخلاقياً.</span>
+                <span class="ltr-only font-fr">Je vous souhaite la plus chaleureuse bienvenue sur le site officiel de notre lycée. Nous sommes fiers d'offrir un enseignement d'excellence alliant tradition et modernité, dans un environnement éducatif stimulant.</span>
+              </p>
+              <p>
+                <span class="rtl-only font-ar">رسالتنا هي إعداد جيل واعٍ ومثقف قادر على مواجهة تحديات المستقبل بثقة واقتدار، وغرس قيم المواطنة والانتماء في نفوس أبنائنا الطلبة.</span>
+                <span class="ltr-only font-fr">Notre mission est de préparer une génération consciente et cultivée, capable de relever les défis de demain avec confiance et compétence.</span>
+              </p>
+            </div>
+            <div class="mt-6 pt-6 border-t border-slate-100">
+              <p class="font-bold text-slate-800 rtl-only font-ar">مدير الثانوية</p>
+              <p class="font-bold text-slate-800 ltr-only font-fr">Le Proviseur</p>
+              <p class="text-slate-500 text-sm rtl-only font-ar">ثانوية بسجراري لخضر - بوفاطيس</p>
+              <p class="text-slate-500 text-sm ltr-only font-fr">Lycée Bousjerari Lakhdar - Boufatis</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATISTICS COUNTER SECTION -->
+    <section class="py-16 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white relative overflow-hidden">
+      <!-- Background pattern -->
+      <div class="absolute inset-0 opacity-5">
+        <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"1\"%3E%3Cpath d=\"M0 0h40v40H0V0zm1 1v38h38V1H1z\"/%3E%3C/g%3E%3C/svg%3E'); background-size: 40px 40px;"></div>
+      </div>
+
+      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12 text-center">
+          <!-- Students -->
+          <div class="group">
+            <div class="text-5xl md:text-6xl font-black text-amber-400 mb-3" id="statStudents">850</div>
+            <div class="text-slate-300 font-semibold rtl-only font-ar">طالب وطالبة</div>
+            <div class="text-slate-300 font-semibold ltr-only font-fr">Élèves</div>
+            <div class="w-12 h-1 bg-amber-500/50 mx-auto mt-3 rounded-full group-hover:w-16 transition-all duration-300"></div>
+          </div>
+
+          <!-- Teachers -->
+          <div class="group">
+            <div class="text-5xl md:text-6xl font-black text-amber-400 mb-3" id="statTeachers">65</div>
+            <div class="text-slate-300 font-semibold rtl-only font-ar">أستاذ وأستاذة</div>
+            <div class="text-slate-300 font-semibold ltr-only font-fr">Enseignants</div>
+            <div class="w-12 h-1 bg-amber-500/50 mx-auto mt-3 rounded-full group-hover:w-16 transition-all duration-300"></div>
+          </div>
+
+          <!-- Classrooms -->
+          <div class="group">
+            <div class="text-5xl md:text-6xl font-black text-amber-400 mb-3" id="statClassrooms">28</div>
+            <div class="text-slate-300 font-semibold rtl-only font-ar">قسم دراسي</div>
+            <div class="text-slate-300 font-semibold ltr-only font-fr">Classes</div>
+            <div class="w-12 h-1 bg-amber-500/50 mx-auto mt-3 rounded-full group-hover:w-16 transition-all duration-300"></div>
+          </div>
+
+          <!-- Success Rate -->
+          <div class="group">
+            <div class="text-5xl md:text-6xl font-black text-amber-400 mb-3" id="statSuccess">94%</div>
+            <div class="text-slate-300 font-semibold rtl-only font-ar">نسبة النجاح</div>
+            <div class="text-slate-300 font-semibold ltr-only font-fr">Taux de réussite</div>
+            <div class="w-12 h-1 bg-amber-500/50 mx-auto mt-3 rounded-full group-hover:w-16 transition-all duration-300"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEWS & ANNOUNCEMENTS SECTION -->
+    <section id="news" class="py-20 lg:py-24 bg-slate-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Section Header -->
+        <div class="text-center mb-16">
+          <span class="text-amber-600 font-semibold text-sm tracking-wider uppercase rtl-only font-ar">آخر المستجدات</span>
+          <span class="text-amber-600 font-semibold text-sm tracking-wider uppercase ltr-only font-fr">Dernières actualités</span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2 mb-4">
+            <span class="rtl-only font-ar">الأخبار والإعلانات</span>
+            <span class="ltr-only font-fr">Actualités et Annonces</span>
+          </h2>
+          <div class="w-24 h-1.5 bg-gradient-to-r from-amber-500 to-amber-300 rounded-full mx-auto"></div>
+        </div>
+
+        <!-- News Grid (Dynamic Content) -->
+        <div id="newsGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Loading State -->
+        <div id="newsLoading" class="text-center py-12">
+          <div class="inline-flex items-center gap-2 text-slate-400">
+            <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            <span class="rtl-only font-ar">جاري تحميل الأخبار...</span>
+            <span class="ltr-only font-fr">Chargement des actualités...</span>
+          </div>
+        </div>
+
+        <!-- View All Button -->
+        <div class="text-center mt-12">
+          <a href="details.html?id=1&type=news" class="inline-flex items-center gap-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold px-8 py-4 rounded-xl border-2 border-slate-200 hover:border-slate-300 shadow-sm transition-all duration-300">
+            <span class="rtl-only font-ar">عرض كل الأخبار</span>
+            <span class="ltr-only font-fr">Voir toutes les actualités</span>
+            <svg class="w-5 h-5 rtl-only" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            <svg class="w-5 h-5 ltr-only" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- GALLERY SECTION -->
+    <section id="gallery" class="py-20 lg:py-24 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Section Header -->
+        <div class="text-center mb-16">
+          <span class="text-amber-600 font-semibold text-sm tracking-wider uppercase rtl-only font-ar">ذكريات ووثائق</span>
+          <span class="text-amber-600 font-semibold text-sm tracking-wider uppercase ltr-only font-fr">Souvenirs et Documents</span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2 mb-4">
+            <span class="rtl-only font-ar">معرض الصور والفيديو</span>
+            <span class="ltr-only font-fr">Galerie Médias</span>
+          </h2>
+          <div class="w-24 h-1.5 bg-gradient-to-r from-amber-500 to-amber-300 rounded-full mx-auto"></div>
+        </div>
+
+        <!-- Gallery Tabs -->
+        <div class="flex justify-center gap-3 mb-12" id="galleryTabs">
+          <button class="gallery-tab active px-8 py-3 rounded-xl font-bold text-sm transition-all duration-300 bg-slate-900 text-amber-500 border-2 border-amber-500 shadow-lg" data-tab="photos">
+            <span class="rtl-only font-ar">📸 الصور</span>
+            <span class="ltr-only font-fr">📸 Photos</span>
+          </button>
+          <button class="gallery-tab px-8 py-3 rounded-xl font-bold text-sm transition-all duration-300 bg-slate-100 text-slate-600 border-2 border-transparent hover:border-slate-300" data-tab="videos">
+            <span class="rtl-only font-ar">🎥 الفيديوهات</span>
+            <span class="ltr-only font-fr">🎥 Vidéos</span>
+          </button>
+        </div>
+
+        <!-- Photos Grid -->
+        <div id="tabPhotos" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div class="aspect-square bg-gradient-to-br from-slate-100 to-slate-50 rounded-2xl flex flex-col items-center justify-center text-5xl border-2 border-slate-100 hover:border-amber-300 transition-all duration-300 cursor-pointer group">
+            <span>📸</span>
+            <span class="text-xs text-slate-400 mt-2 group-hover:text-amber-600 transition rtl-only font-ar">صورة</span>
+            <span class="text-xs text-slate-400 mt-2 group-hover:text-amber-600 transition ltr-only font-fr">Photo</span>
+          </div>
+          <div class="aspect-square bg-gradient-to-br from-slate-100 to-slate-50 rounded-2xl flex flex-col items-center justify-center text-5xl border-2 border-slate-100 hover:border-amber-300 transition-all duration-300 cursor-pointer group">
+            <span>📸</span>
+            <span class="text-xs text-slate-400 mt-2 group-hover:text-amber-600 transition rtl-only font-ar">صورة</span>
+            <span class="text-xs text-slate-400 mt-2 group-hover:text-amber-600 transition ltr-only font-fr">Photo</span>
+          </div>
+          <div class="aspect-square bg-gradient-to-br from-slate-100 to-slate-50 rounded-2xl flex flex-col items-center justify-center text-5xl border-2 border-slate-100 hover:border-amber-300 transition-all duration-300 cursor-pointer group">
+            <span>📸</span>
+            <span class="text-xs text-slate-400 mt-2 group-hover:text-amber-600 transition rtl-only font-ar">صورة</span>
+            <span class="text-xs text-slate-400 mt-2 group-hover:text-amber-600 transition ltr-only font-fr">Photo</span>
+          </div>
+          <div class="aspect-square bg-gradient-to-br from-slate-100 to-slate-50 rounded-2xl flex flex-col items-center justify-center text-5xl border-2 border-slate-100 hover:border-amber-300 transition-all duration-300 cursor-pointer group">
+            <span>📸</span>
+            <span class="text-xs text-slate-400 mt-2 group-hover:text-amber-600 transition rtl-only font-ar">صورة</span>
+            <span class="text-xs text-slate-400 mt-2 group-hover:text-amber-600 transition ltr-only font-fr">Photo</span>
+          </div>
+        </div>
+
+        <!-- Videos Grid -->
+        <div id="tabVideos" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl flex flex-col items-center justify-center text-white/60 text-3xl border-2 border-slate-700 hover:border-amber-500 transition-all duration-300 cursor-pointer">
+            <span>▶️</span>
+            <span class="text-sm mt-2 rtl-only font-ar">فيديو تعريفي</span>
+            <span class="text-sm mt-2 ltr-only font-fr">Vidéo de présentation</span>
+          </div>
+          <div class="aspect-video bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl flex flex-col items-center justify-center text-white/60 text-3xl border-2 border-slate-700 hover:border-amber-500 transition-all duration-300 cursor-pointer">
+            <span>▶️</span>
+            <span class="text-sm mt-2 rtl-only font-ar">أنشطة مدرسية</span>
+            <span class="text-sm mt-2 ltr-only font-fr">Activités scolaires</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DOCUMENTS SECTION -->
+    <section id="documents" class="py-20 lg:py-24 bg-slate-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Section Header -->
+        <div class="text-center mb-16">
+          <span class="text-amber-600 font-semibold text-sm tracking-wider uppercase rtl-only font-ar">مستندات مهمة</span>
+          <span class="text-amber-600 font-semibold text-sm tracking-wider uppercase ltr-only font-fr">Documents importants</span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-2 mb-4">
+            <span class="rtl-only font-ar">وثائق رسمية للتحميل</span>
+            <span class="ltr-only font-fr">Documents Officiels</span>
+          </h2>
+          <div class="w-24 h-1.5 bg-gradient-to-r from-amber-500 to-amber-300 rounded-full mx-auto"></div>
+        </div>
+
+        <!-- Documents List -->
+        <div id="documentsList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT & FOOTER -->
+    <footer id="contact" class="bg-gradient-to-b from-slate-900 to-slate-950 text-slate-300 pt-20 pb-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-16 mb-16">
+          <!-- Contact Form -->
+          <div>
+            <h3 class="text-2xl font-extrabold text-white mb-8 flex items-center gap-3">
+              <span class="text-3xl">📝</span>
+              <span class="rtl-only font-ar">تواصل معنا</span>
+              <span class="ltr-only font-fr">Contactez-nous</span>
+            </h3>
+            <form id="contactForm" class="space-y-5">
+              <div class="grid sm:grid-cols-2 gap-5">
+                <input type="text" id="contactName" placeholder="الاسم الكامل / Nom complet"
+                       class="w-full px-5 py-3.5 bg-slate-800/50 border-2 border-slate-700 rounded-xl text-white placeholder-slate-400 focus:border-amber-500 focus:outline-none transition-all duration-300">
+                <input type="email" id="contactEmail" placeholder="البريد الإلكتروني / Email"
+                       class="w-full px-5 py-3.5 bg-slate-800/50 border-2 border-slate-700 rounded-xl text-white placeholder-slate-400 focus:border-amber-500 focus:outline-none transition-all duration-300">
+              </div>
+              <textarea id="contactMessage" rows="5" placeholder="اكتب رسالتك هنا / Votre message ici"
+                        class="w-full px-5 py-3.5 bg-slate-800/50 border-2 border-slate-700 rounded-xl text-white placeholder-slate-400 focus:border-amber-500 focus:outline-none transition-all duration-300 resize-none"></textarea>
+              <button type="submit"
+                      class="w-full sm:w-auto bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-900 font-extrabold px-8 py-4 rounded-xl shadow-xl transition-all duration-300 transform hover:scale-105">
+                <span class="rtl-only font-ar">📤 إرسال الرسالة</span>
+                <span class="ltr-only font-fr">📤 Envoyer le message</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Contact Info -->
+          <div class="space-y-8">
+            <h3 class="text-2xl font-extrabold text-white mb-8 flex items-center gap-3">
+              <span class="text-3xl">📍</span>
+              <span class="rtl-only font-ar">معلومات الاتصال</span>
+              <span class="ltr-only font-fr">Coordonnées</span>
+            </h3>
+
+            <div class="space-y-6">
+              <div class="flex items-start gap-4">
+                <span class="text-2xl">🏫</span>
+                <div>
+                  <p class="font-bold text-white rtl-only font-ar">العنوان</p>
+                  <p class="font-bold text-white ltr-only font-fr">Adresse</p>
+                  <p class="text-slate-400 mt-1 rtl-only font-ar">بوفاطيس، ولاية وهران، الجزائر</p>
+                  <p class="text-slate-400 mt-1 ltr-only font-fr">Boufatis, Wilaya d'Oran, Algérie</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <span class="text-2xl">📞</span>
+                <div>
+                  <p class="font-bold text-white rtl-only font-ar">الهاتف</p>
+                  <p class="font-bold text-white ltr-only font-fr">Téléphone</p>
+                  <p class="text-slate-400 mt-1">+213 41 00 00 00</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-4">
+                <span class="text-2xl">📧</span>
+                <div>
+                  <p class="font-bold text-white rtl-only font-ar">البريد الإلكتروني</p>
+                  <p class="font-bold text-white ltr-only font-fr">Email</p>
+                  <p class="text-slate-400 mt-1">contact@lycee-bousjerari.edu.dz</p>
+                </div>
+              </div>
+
+              <!-- Social Media -->
+              <div class="pt-4">
+                <p class="font-bold text-white mb-3 rtl-only font-ar">تابعونا على</p>
+                <p class="font-bold text-white mb-3 ltr-only font-fr">Suivez-nous sur</p>
+                <div class="flex gap-4 text-3xl">
+                  <a href="#" class="hover:scale-110 transition-transform" title="Facebook">🔵</a>
+                  <a href="#" class="hover:scale-110 transition-transform" title="YouTube">🔴</a>
+                  <a href="#" class="hover:scale-110 transition-transform" title="Instagram">🟣</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Map Placeholder -->
+            <div class="h-48 bg-slate-800/50 rounded-2xl flex items-center justify-center text-slate-500 border-2 border-slate-700 border-dashed">
+              <span class="rtl-only font-ar">📍 خريطة الموقع</span>
+              <span class="ltr-only font-fr">📍 Carte de localisation</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Copyright -->
+        <div class="border-t-2 border-slate-800 pt-8 text-center text-sm text-slate-500">
+          <p>© 2025 <span class="rtl-only font-ar">ثانوية بسجراري لخضر - بوفاطيس</span><span class="ltr-only font-fr">Lycée Bousjerari Lakhdar - Boufatis</span>. <span class="rtl-only font-ar">جميع الحقوق محفوظة.</span><span class="ltr-only font-fr">Tous droits réservés.</span></p>
+          <p class="mt-2">
+            <a href="legal.html" class="text-amber-500 hover:text-amber-400 underline transition rtl-only font-ar">سياسة الخصوصية والشروط</a>
+            <a href="legal.html" class="text-amber-500 hover:text-amber-400 underline transition ltr-only font-fr">Politique de confidentialité</a>
+          </p>
+        </div>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ==================== JAVASCRIPT ==================== -->
+  <script>
+    (function() {
+      // ──────────────────────────────────────
+      // SUPABASE CONFIGURATION (بيناتك المدخلة)
+      // ──────────────────────────────────────
+      const SUPABASE_URL = 'https://gqyazdzzvhkjkrjmqphb.supabase.co';
+      const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxeWF6ZHp6dmhramtyam1xcGhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM0MDk2MTUsImV4cCI6MjA5ODk4NTYxNX0.M6yoxcU5MLaSZiceKzI5HlUncJzx6A1yZuCWerkyBVI';
+
+      let supabase = null;
+      try {
+        if (window.supabase && typeof window.supabase.createClient === 'function') {
+          supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+          console.log('✅ Supabase connected successfully');
+        } else {
+          console.warn('⚠️ Supabase CDN not loaded, using demo mode');
+        }
+      } catch (error) {
+        console.warn('⚠️ Supabase initialization error:', error.message);
+      }
+
+      // ──────────────────────────────────────
+      // LANGUAGE MANAGEMENT
+      // ──────────────────────────────────────
+      let currentLang = 'ar';
+
+      const translations = {
+        ar: {
+          nav_home: 'الرئيسية',
+          nav_news: 'الأخبار',
+          nav_gallery: 'المعرض',
+          nav_docs: 'الوثائق',
+          nav_contact: 'اتصل بنا'
+        },
+        fr: {
+          nav_home: 'Accueil',
+          nav_news: 'Actualités',
+          nav_gallery: 'Galerie',
+          nav_docs: 'Documents',
+          nav_contact: 'Contact'
+        }
+      };
+
+      function switchLanguage(lang) {
+        currentLang = lang;
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        document.getElementById('langIndicator').innerHTML = lang === 'ar' ? '<span class="font-fr">FR</span>' : '<span class="font-ar">AR</span>';
+
+        // Update navigation links
+        document.querySelectorAll('.nav-link[data-key]').forEach(el => {
+          const key = el.dataset.key;
+          if (translations[lang] && translations[lang][key]) {
+            el.textContent = translations[lang][key];
+          }
+        });
+
+        // Reload dynamic content with new language
+        loadNewsFromSupabase();
+        loadDocuments();
+      }
+
+      document.getElementById('langToggle').addEventListener('click', () => {
+        const newLang = currentLang === 'ar' ? 'fr' : 'ar';
+        switchLanguage(newLang);
+      });
+
+      // ──────────────────────────────────────
+      // MOBILE MENU TOGGLE
+      // ──────────────────────────────────────
+      document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+        const mobileNav = document.getElementById('mobileNav');
+        mobileNav.classList.toggle('hidden');
+      });
+
+      // Close mobile menu when a link is clicked
+      document.querySelectorAll('#mobileNav .nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+          document.getElementById('mobileNav').classList.add('hidden');
+        });
+      });
+
+      // ──────────────────────────────────────
+      // GALLERY TABS
+      // ──────────────────────────────────────
+      document.getElementById('galleryTabs').addEventListener('click', (e) => {
+        const tabButton = e.target.closest('.gallery-tab');
+        if (!tabButton) return;
+
+        // Update active tab styling
+        document.querySelectorAll('.gallery-tab').forEach(btn => {
+          btn.classList.remove('active', 'bg-slate-900', 'text-amber-500', 'border-amber-500', 'shadow-lg');
+          btn.classList.add('bg-slate-100', 'text-slate-600', 'border-transparent');
+        });
+        tabButton.classList.add('active', 'bg-slate-900', 'text-amber-500', 'border-amber-500', 'shadow-lg');
+        tabButton.classList.remove('bg-slate-100', 'text-slate-600', 'border-transparent');
+
+        // Show/hide content
+        const tab = tabButton.dataset.tab;
+        document.getElementById('tabPhotos').classList.toggle('hidden', tab !== 'photos');
+        document.getElementById('tabVideos').classList.toggle('hidden', tab !== 'videos');
+      });
+
+      // ──────────────────────────────────────
+      // FETCH NEWS FROM SUPABASE
+      // ──────────────────────────────────────
+      async function loadNewsFromSupabase() {
+        const grid = document.getElementById('newsGrid');
+        const loading = document.getElementById('newsLoading');
+
+        if (!grid) return;
+
+        // Show loading
+        if (loading) loading.classList.remove('hidden');
+        grid.innerHTML = '';
+
+        let newsItems = [];
+
+        // Try to fetch from Supabase
+        if (supabase) {
+          try {
+            const { data, error } = await supabase
+              .from('news')
+              .select('*')
+              .order('created_at', { ascending: false })
+              .limit(3);
+
+            if (error) throw error;
+            if (data && data.length > 0) {
+              newsItems = data;
+            }
+          } catch (error) {
+            console.warn('⚠️ Supabase fetch error (using fallback):', error.message);
+          }
+        }
+
+        // Use demo data if no items from Supabase
+        if (newsItems.length === 0) {
+          newsItems = [
+            {
+              id: 1,
+              title_ar: 'نتائج البكالوريا 2025',
+              title_fr: 'Résultats du Bac 2025',
+              content_ar: 'بكل فخر نعلن عن نتائج البكالوريا لهذا العام بنسبة نجاح بلغت 94%',
+              content_fr: "Avec fierté, nous annonçons les résultats du Bac avec un taux de réussite de 94%",
+              image_url: '',
+              created_at: '2025-07-05',
+              is_featured: true
+            },
+            {
+              id: 2,
+              title_ar: 'بداية الفصل الدراسي الثاني',
+              title_fr: 'Début du deuxième trimestre',
+              content_ar: 'نرحب بجميع الطلاب مع انطلاق الفصل الثاني وندعوهم للالتزام بالحضور',
+              content_fr: 'Nous souhaitons la bienvenue à tous les élèves pour le début du deuxième trimestre',
+              image_url: '',
+              created_at: '2025-01-15',
+              is_featured: false
+            },
+            {
+              id: 3,
+              title_ar: 'تكريم الطلاب المتفوقين',
+              title_fr: 'Cérémonie des excellents élèves',
+              content_ar: 'حفل تكريم الطلاب المتفوقين يوم الخميس القادم في قاعة المحاضرات',
+              content_fr: 'Cérémonie de remise des prix jeudi prochain dans la salle de conférences',
+              image_url: '',
+              created_at: '2025-03-20',
+              is_featured: false
+            }
+          ];
+        }
+
+        // Hide loading
+        if (loading) loading.classList.add('hidden');
+
+        // Render news cards
+        grid.innerHTML = newsItems.map(item => {
+          const title = currentLang === 'ar' ? item.title_ar : item.title_fr;
+          const content = currentLang === 'ar' ? item.content_ar : item.content_fr;
+          const truncatedContent = content && content.length > 100 ? content.substring(0, 100) + '...' : content;
+          const date = item.created_at ? new Date(item.created_at).toLocaleDateString(
+            currentLang === 'ar' ? 'ar-DZ' : 'fr-FR',
+            { year: 'numeric', month: 'long', day: 'numeric' }
+          ) : '';
+
+          return `
+            <article class="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden hover-lift group">
+              <div class="h-48 bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center text-6xl relative overflow-hidden">
+                <span class="group-hover:scale-110 transition-transform duration-500">📰</span>
+                ${item.is_featured ? `<span class="absolute top-3 right-3 bg-amber-500 text-slate-900 text-xs font-bold px-3 py-1 rounded-full shadow-lg rtl-only font-ar">مميز</span>` : ''}
+                ${item.is_featured ? `<span class="absolute top-3 right-3 bg-amber-500 text-slate-900 text-xs font-bold px-3 py-1 rounded-full shadow-lg ltr-only font-fr">À la une</span>` : ''}
+              </div>
+              <div class="p-6">
+                <span class="inline-block text-amber-600 text-xs font-semibold mb-2">📅 ${date}</span>
+                <h3 class="text-lg font-bold text-slate-900 mb-3 line-clamp-2">${title}</h3>
+                <p class="text-slate-500 text-sm leading-relaxed mb-4 line-clamp-3">${truncatedContent}</p>
+                <a href="details.html?id=${item.id}&type=news"
+                   class="inline-flex items-center gap-1 text-amber-600 hover:text-amber-700 font-semibold text-sm transition group/link">
+                  <span class="rtl-only font-ar">اقرأ المزيد</span>
+                  <span class="ltr-only font-fr">Lire la suite</span>
+                  <svg class="w-4 h-4 rtl-only group-hover/link:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                  <svg class="w-4 h-4 ltr-only group-hover/link:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
+              </div>
+            </article>
+          `;
+        }).join('');
+      }
+
+      // ──────────────────────────────────────
+      // LOAD DOCUMENTS
+      // ──────────────────────────────────────
+      async function loadDocuments() {
+        const list = document.getElementById('documentsList');
+        if (!list) return;
+
+        let docs = [];
+
+        if (supabase) {
+          try {
+            const { data, error } = await supabase
+              .from('documents')
+              .select('*')
+              .order('created_at', { ascending: false });
+            if (!error && data && data.length > 0) {
+              docs = data;
+            }
+          } catch (e) { /* use fallback */ }
+        }
+
+        if (docs.length === 0) {
+          docs = [
+            { id: 1, title_ar: 'جدول التوقيت 2025', title_fr: 'Emploi du temps 2025', file_url: '#', category: 'schedules' },
+            { id: 2, title_ar: 'النظام الداخلي', title_fr: 'Règlement intérieur', file_url: '#', category: 'regulations' },
+            { id: 3, title_ar: 'قائمة العطل الرسمية', title_fr: 'Jours fériés', file_url: '#', category: 'lists' }
+          ];
+        }
+
+        const categoryIcons = {
+          schedules: '📅',
+          regulations: '📋',
+          lists: '📝',
+          other: '📄'
+        };
+
+        list.innerHTML = docs.map(doc => `
+          <div class="bg-white rounded-2xl border-2 border-slate-100 p-6 hover:border-amber-300 transition-all duration-300 group hover-lift">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex items-start gap-4">
+                <span class="text-3xl">${categoryIcons[doc.category] || '📄'}</span>
+                <div>
+                  <h4 class="font-bold text-slate-900 mb-1">${currentLang === 'ar' ? doc.title_ar : doc.title_fr}</h4>
+                  <span class="text-xs text-slate-400 uppercase rtl-only font-ar">${doc.category === 'schedules' ? 'جدول' : doc.category === 'regulations' ? 'لائحة' : doc.category === 'lists' ? 'قائمة' : 'أخرى'}</span>
+                  <span class="text-xs text-slate-400 uppercase ltr-only font-fr">${doc.category === 'schedules' ? 'Emploi' : doc.category === 'regulations' ? 'Règlement' : doc.category === 'lists' ? 'Liste' : 'Autre'}</span>
+                </div>
+              </div>
+              <a href="${doc.file_url}" download
+                 class="flex-shrink-0 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold p-3 rounded-xl transition-all duration-300 transform group-hover:scale-110 shadow-lg">
+                ⬇️
+              </a>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // ──────────────────────────────────────
+      // CONTACT FORM SUBMISSION
+      // ──────────────────────────────────────
+      document.getElementById('contactForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById('contactName').value.trim();
+        const email = document.getElementById('contactEmail').value.trim();
+        const message = document.getElementById('contactMessage').value.trim();
+
+        if (!name || !email || !message) {
+          alert(currentLang === 'ar' ? '⚠️ يرجى ملء جميع الحقول' : '⚠️ Veuillez remplir tous les champs');
+          return;
+        }
+
+        if (supabase) {
+          try {
+            const { error } = await supabase
+              .from('contact_messages')
+              .insert([{ name, email, message }]);
+
+            if (error) throw error;
+
+            alert(currentLang === 'ar' ? '✅ تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.' : '✅ Votre message a été envoyé avec succès! Nous vous contacterons bientôt.');
+            e.target.reset();
+          } catch (error) {
+            console.error('Submission error:', error);
+            alert(currentLang === 'ar' ? '❌ حدث خطأ أثناء الإرسال. يرجى المحاولة لاحقاً.' : '❌ Une erreur est survenue. Veuillez réessayer plus tard.');
+          }
+        } else {
+          // Demo mode
+          alert(currentLang === 'ar' ? '✅ تم إرسال رسالتك بنجاح! (وضع تجريبي)' : '✅ Votre message a été envoyé avec succès! (Mode démo)');
+          e.target.reset();
+        }
+      });
+
+      // ──────────────────────────────────────
+      // INITIALIZATION
+      // ──────────────────────────────────────
+      function init() {
+        switchLanguage('ar');
+        loadNewsFromSupabase();
+        loadDocuments();
+
+        console.log('🏫 Lycée Bousjerari Lakhdar - Website initialized');
+      }
+
+      // Start the application
+      init();
+
+    })();
+  </script>
+
+</body>
+</html>
